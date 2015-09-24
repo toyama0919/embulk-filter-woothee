@@ -7,7 +7,7 @@
 build/
 bin/
 .idea
-.settings
-.metadata
+/.settings/
+/.metadata/
 .classpath
 .project
