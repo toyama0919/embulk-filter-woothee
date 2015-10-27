@@ -19,8 +19,8 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 dependencies {
-    compile  "org.embulk:embulk-core:0.7.1"
-    provided "org.embulk:embulk-core:0.7.1"
+    compile  "org.embulk:embulk-core:0.7.5"
+    provided "org.embulk:embulk-core:0.7.5"
     compile 'is.tagomor.woothee:woothee-java:1.2.0'
     testCompile "junit:junit:4.+"
 }
