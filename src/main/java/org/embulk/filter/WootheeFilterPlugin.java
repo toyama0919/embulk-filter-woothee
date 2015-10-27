@@ -108,39 +108,37 @@ public class WootheeFilterPlugin implements FilterPlugin
         
         return new PageOutput() {
             private PageReader reader = new PageReader(inputSchema);
+            private PageBuilder builder = new PageBuilder(Exec.getBufferAllocator(), outputSchema, output);
 
             @Override
             public void finish() {
-                output.finish();
+                builder.finish();
             }
             
             @Override
             public void close() {
-                output.close();
+                builder.close();
             }
             
             @Override
             public void add(Page page) {
                 reader.setPage(page);
 
-                try (final PageBuilder builder = new PageBuilder(Exec.getBufferAllocator(), outputSchema, output)) {
-                    while (reader.nextRecord()) {
-                        String userAgentString = reader.isNull(keyNameColumn) ? null : reader.getString(keyNameColumn);
-                        Map<String, String> ua = Classifier.parse(userAgentString);
-                        setValue(builder, ua);
-                        if (task.getFilterCategories().isPresent()) {
-                            if (task.getFilterCategories().orNull().contains(ua.get("category"))) {
-                                builder.addRecord();
-                            }
-                        } else if (task.getDropCategories().isPresent()) {
-                            if (!task.getDropCategories().orNull().contains(ua.get("category"))) {
-                                builder.addRecord();
-                            }
-                        } else {
+                while (reader.nextRecord()) {
+                    String userAgentString = reader.isNull(keyNameColumn) ? null : reader.getString(keyNameColumn);
+                    Map<String, String> ua = Classifier.parse(userAgentString);
+                    setValue(builder, ua);
+                    if (task.getFilterCategories().isPresent()) {
+                        if (task.getFilterCategories().orNull().contains(ua.get("category"))) {
                             builder.addRecord();
                         }
+                    } else if (task.getDropCategories().isPresent()) {
+                        if (!task.getDropCategories().orNull().contains(ua.get("category"))) {
+                            builder.addRecord();
+                        }
+                    } else {
+                        builder.addRecord();
                     }
-                    builder.finish();
                 }
             }
 
